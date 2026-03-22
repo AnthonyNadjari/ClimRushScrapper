@@ -252,16 +252,57 @@
           ? enabled.reduce((sum, s) => sum + (s.gmaps_queries || []).length * 20, 0)
           : enabled.reduce((sum, s) => sum + (s.gmaps_queries || []).length, 0);
 
-        el.innerHTML = `
+        // Global stats bar
+        let html = `
           <div class="config-stats">
             <span><strong>${enabled.length}</strong> segments actifs</span>
-            <span><strong>${totalQueries}</strong> requetes configurees</span>
-            <span><strong>${expanded.toLocaleString()}</strong> recherches Google Maps (avec expansion arrondissements)</span>
-            <span>Concurrence: <strong>${config.concurrency || 5}</strong> queries simultanees</span>
+            <span><strong>${totalQueries}</strong> requetes</span>
+            <span><strong>${expanded.toLocaleString()}</strong> recherches GMaps (x20 arrondissements)</span>
+            <span>Concurrence: <strong>${config.concurrency || 5}</strong></span>
             <span>Zones: <strong>${(config.zones || []).join(', ')}</strong></span>
           </div>
-          <pre>${JSON.stringify(config, null, 2)}</pre>
         `;
+
+        // Render each segment as a nice card
+        html += '<div class="config-segments-grid">';
+        enabled.forEach((seg, i) => {
+          const gCount = (seg.gmaps_queries || []).length;
+          const pCount = (seg.pj_queries || []).length;
+          const sources = (seg.sources || []).map(s => s === 'gmaps' ? 'Google Maps' : 'Pages Jaunes').join(' + ');
+          const excludeStr = (seg.exclude || []).length > 0
+            ? (seg.exclude || []).join(', ')
+            : 'Aucun';
+
+          html += `
+            <div class="config-seg-card">
+              <div class="config-seg-header">
+                <span class="config-seg-num">${i + 1}</span>
+                <h4>${seg.name}</h4>
+              </div>
+              <div class="config-seg-body">
+                <div class="config-seg-row">
+                  <span class="config-seg-label">Sources</span>
+                  <span class="config-seg-value">${sources}</span>
+                </div>
+                <div class="config-seg-row">
+                  <span class="config-seg-label">Requetes GMaps</span>
+                  <span class="config-seg-value"><strong>${gCount}</strong> — ${(seg.gmaps_queries || []).slice(0, 3).join(', ')}${gCount > 3 ? '...' : ''}</span>
+                </div>
+                <div class="config-seg-row">
+                  <span class="config-seg-label">Requetes PJ</span>
+                  <span class="config-seg-value"><strong>${pCount}</strong> — ${(seg.pj_queries || []).slice(0, 3).join(', ')}${pCount > 3 ? '...' : ''}</span>
+                </div>
+                <div class="config-seg-row">
+                  <span class="config-seg-label">Exclusions</span>
+                  <span class="config-seg-value config-seg-exclude">${excludeStr}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        html += '</div>';
+
+        el.innerHTML = html;
       } catch {
         el.innerHTML = '<p>Impossible de charger la config.</p>';
       }
