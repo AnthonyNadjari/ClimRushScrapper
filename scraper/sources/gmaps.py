@@ -1,4 +1,6 @@
-"""Google Maps scraping: scroll feed, click listings, extract details."""
+"""Google Maps scraping: scroll feed, extract from feed first, click only when needed."""
+
+from __future__ import annotations
 
 import asyncio
 import logging
@@ -15,14 +17,14 @@ MAX_RETRIES = 3
 RETRY_DELAY = 4
 
 
-async def _wait_detail(page, timeout_ms: int = 5000) -> bool:
+async def _wait_detail(page, timeout_ms: int = 3000) -> bool:
     try:
         await page.wait_for_function(
             """() => {
                 const h1 = document.querySelector('h1');
                 if (!h1) return false;
                 const t = h1.innerText.trim().toLowerCase();
-                return t && t !== 'résultats' && t !== 'resultats' && t.length > 1;
+                return t && t !== 'resultats' && t !== 'resultats' && t.length > 1;
             }""",
             timeout=timeout_ms,
         )
@@ -57,13 +59,98 @@ async def _scroll_feed(page, max_scrolls: int = 35) -> int:
     return prev_count
 
 
+async def _extract_from_feed(item) -> dict:
+    """Try to extract data from the feed listing without clicking into details.
+
+    The feed item's parent container often has rating, address text, and
+    sometimes category info visible in nearby sibling/child elements.
+    Returns a dict of what could be extracted.
+    """
+    info = {"name": "", "address": "", "rating": "", "reviews": "", "phone": "", "website": ""}
+
+    try:
+        info["name"] = (await item.get_attribute("aria-label")) or ""
+
+        # Navigate to the parent container that holds all info for this listing
+        # The link sits inside a container div that has address, rating, etc.
+        parent_text = await item.evaluate_handle(
+            """el => {
+                // Walk up to the listing container (usually 3-4 levels up)
+                let container = el.parentElement;
+                for (let i = 0; i < 5; i++) {
+                    if (!container) break;
+                    if (container.querySelectorAll('span').length > 3) break;
+                    container = container.parentElement;
+                }
+                return container;
+            }"""
+        )
+
+        if parent_text:
+            # Extract all text content from the container
+            all_text = await parent_text.evaluate("el => el ? el.innerText : ''")
+
+            if all_text:
+                # Extract rating (e.g. "4,5" or "4.5")
+                rating_match = re.search(r"(\d[.,]\d)\s*\(", all_text)
+                if rating_match:
+                    info["rating"] = rating_match.group(1).replace(",", ".")
+
+                # Extract review count
+                reviews_match = re.search(r"\((\d[\d\s]*)\)", all_text)
+                if reviews_match:
+                    info["reviews"] = reviews_match.group(1).replace(" ", "").replace("\u202f", "")
+
+                # Extract address-like text (lines with digits that look like street addresses)
+                lines = all_text.split("\n")
+                for line in lines:
+                    line = line.strip()
+                    # Address lines typically contain a postal code or street number
+                    if re.search(r"\b\d{5}\b", line) and len(line) > 10:
+                        info["address"] = line
+                        break
+                    elif re.search(r"^\d+\s+(rue|av|avenue|bd|boulevard|place|passage|impasse)", line, re.IGNORECASE):
+                        info["address"] = line
+                        break
+
+            # Look for phone in aria-labels of child elements
+            phone_els = await parent_text.evaluate(
+                """el => {
+                    if (!el) return '';
+                    const links = el.querySelectorAll('a[href^="tel:"]');
+                    for (const l of links) return l.href.replace('tel:', '');
+                    return '';
+                }"""
+            )
+            if phone_els:
+                info["phone"] = phone_els
+
+            # Look for website link
+            website = await parent_text.evaluate(
+                """el => {
+                    if (!el) return '';
+                    const links = el.querySelectorAll('a[data-item-id="authority"]');
+                    for (const l of links) return l.href || '';
+                    return '';
+                }"""
+            )
+            if website:
+                info["website"] = website
+
+    except Exception as e:
+        log.debug(f"  GMaps feed extract error: {e}")
+
+    return info
+
+
 async def _extract_detail(page, segment: str, fallback_name: str = "") -> Lead:
+    """Extract full details from a clicked listing's detail panel."""
     lead = Lead(segment=segment, source="Google Maps")
     try:
         h1 = await page.query_selector("h1")
         if h1:
             name = (await h1.inner_text()).strip()
-            if name.lower() in ["résultats", "resultats", "google maps", ""]:
+            if name.lower() in ["resultats", "resultats", "google maps", ""]:
                 lead.nom_entreprise = fallback_name
             else:
                 lead.nom_entreprise = name
@@ -71,7 +158,7 @@ async def _extract_detail(page, segment: str, fallback_name: str = "") -> Lead:
             lead.nom_entreprise = fallback_name
 
         if lead.nom_entreprise:
-            lead.nom_entreprise = re.sub(r"(?i)sponsoris[ée].*", "", lead.nom_entreprise).strip()
+            lead.nom_entreprise = re.sub(r"(?i)sponsoris[ee].*", "", lead.nom_entreprise).strip()
             lead.nom_entreprise = re.sub(r"(?i)par booking\.com.*", "", lead.nom_entreprise).strip()
 
         addr_btn = await page.query_selector('button[data-item-id="address"]')
@@ -81,8 +168,10 @@ async def _extract_detail(page, segment: str, fallback_name: str = "") -> Lead:
             cp = extract_cp(addr_text)
             if cp:
                 lead.code_postal = cp
-            # Extract city from address
-            for city_match in re.finditer(r"(\d{5})\s+([A-ZÀ-Ü][a-zà-ü\-]+(?:\s+[A-ZÀ-Ü][a-zà-ü\-]+)*)", addr_text):
+            for city_match in re.finditer(
+                r"(\d{5})\s+([A-Z\u00c0-\u00dc][a-z\u00e0-\u00fc\-]+(?:\s+[A-Z\u00c0-\u00dc][a-z\u00e0-\u00fc\-]+)*)",
+                addr_text,
+            ):
                 lead.ville = city_match.group(2)
                 break
             if not lead.ville and "paris" in addr_text.lower():
@@ -116,22 +205,89 @@ async def _extract_detail(page, segment: str, fallback_name: str = "") -> Lead:
     return lead
 
 
-async def _process_item(page, item, idx, total, segment, exclude_kw) -> Optional[Lead]:
+async def _build_lead_from_feed(feed_info: dict, segment: str) -> Lead:
+    """Build a Lead from feed-extracted data (no click needed)."""
+    lead = Lead(segment=segment, source="Google Maps")
+    lead.nom_entreprise = feed_info.get("name", "")
+
+    if lead.nom_entreprise:
+        lead.nom_entreprise = re.sub(r"(?i)sponsoris[ee].*", "", lead.nom_entreprise).strip()
+        lead.nom_entreprise = re.sub(r"(?i)par booking\.com.*", "", lead.nom_entreprise).strip()
+
+    addr = feed_info.get("address", "")
+    if addr:
+        lead.adresse = addr
+        cp = extract_cp(addr)
+        if cp:
+            lead.code_postal = cp
+        for city_match in re.finditer(
+            r"(\d{5})\s+([A-Z\u00c0-\u00dc][a-z\u00e0-\u00fc\-]+(?:\s+[A-Z\u00c0-\u00dc][a-z\u00e0-\u00fc\-]+)*)",
+            addr,
+        ):
+            lead.ville = city_match.group(2)
+            break
+        if not lead.ville and "paris" in addr.lower():
+            lead.ville = "Paris"
+        if lead.ville and not lead.code_postal:
+            lead.code_postal = "75000"
+
+    if feed_info.get("rating"):
+        lead.note_google = feed_info["rating"]
+    if feed_info.get("reviews"):
+        lead.nb_avis = feed_info["reviews"]
+    if feed_info.get("phone"):
+        lead.telephone = normalize_phone(feed_info["phone"])
+    if feed_info.get("website"):
+        lead.site_web = feed_info["website"]
+
+    return lead
+
+
+async def _process_item(page, item, idx, total, segment, exclude_kw, seen_names: set) -> Optional[Lead]:
+    """Process a single feed item. Extract from feed first, click only if needed."""
     try:
-        name = await item.get_attribute("aria-label") or ""
-        if name.startswith("Visiter") or name.startswith("Itin") or not name:
+        # --- Step 1: Extract what we can from the feed ---
+        feed_info = await _extract_from_feed(item)
+        name = feed_info.get("name", "")
+
+        if not name or name.startswith("Visiter") or name.startswith("Itin"):
             return None
         if any(kw.upper() in name.upper() for kw in exclude_kw):
             return None
-        await item.click()
-        await asyncio.sleep(0.4)
-        await _wait_detail(page, timeout_ms=5000)
-        lead = await _extract_detail(page, segment, fallback_name=name)
-        if lead.is_valid():
-            tel = lead.telephone or "no tel"
-            log.info(f"    [GMaps] {idx+1}/{total}: {lead.nom_entreprise[:40]} | {tel}")
-            return lead
+
+        # --- Step 2: Deduplicate by normalized name ---
+        norm = re.sub(r"[^A-Z0-9]", "", name.upper())
+        if norm in seen_names:
+            return None
+        seen_names.add(norm)
+
+        # --- Step 3: Decide whether to click ---
+        has_phone = bool(feed_info.get("phone"))
+        has_website = bool(feed_info.get("website"))
+
+        if has_phone or has_website:
+            # We have enough contact info from feed, build lead without clicking
+            lead = await _build_lead_from_feed(feed_info, segment)
+            if lead.is_valid():
+                tel = lead.telephone or "no tel"
+                log.info(f"    [GMaps] {idx+1}/{total}: {lead.nom_entreprise[:40]} | {tel} (feed)")
+                return lead
+
+        # --- Step 4: Click into detail page for full extraction ---
+        try:
+            await item.click()
+            await asyncio.sleep(0.3)
+            await _wait_detail(page, timeout_ms=3000)
+            lead = await _extract_detail(page, segment, fallback_name=name)
+            if lead.is_valid():
+                tel = lead.telephone or "no tel"
+                log.info(f"    [GMaps] {idx+1}/{total}: {lead.nom_entreprise[:40]} | {tel}")
+                return lead
+        except Exception:
+            pass
+
         return None
+
     except Exception:
         return None
 
@@ -165,11 +321,13 @@ async def scrape_query(
 
                 items = await page.query_selector_all('div[role="feed"] > div a[aria-label]')
                 leads = []
+                seen_names: set[str] = set()
+
                 for i, item in enumerate(items):
-                    lead = await _process_item(page, item, i, len(items), segment, exclude_kw)
+                    lead = await _process_item(page, item, i, len(items), segment, exclude_kw, seen_names)
                     if lead:
                         leads.append(lead)
-                    await asyncio.sleep(0.25)
+                    await asyncio.sleep(0.15)
 
                 log.info(f"  [GMaps:{segment[:18]}] '{query}' -> {len(leads)} leads")
                 return leads

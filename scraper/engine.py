@@ -7,6 +7,8 @@ Usage:
     python -m scraper.engine --config config/segments.json --segment-index 0 --output-dir output/
 """
 
+from __future__ import annotations
+
 import argparse
 import asyncio
 import json
@@ -21,7 +23,7 @@ from playwright.async_api import async_playwright
 from .models import Lead
 from .utils import save_csv, deduplicate
 from .browser import launch_browser
-from .sources import gmaps, pagesjaunes
+from .sources import gmaps, pagesjaunes, annuaire, societe
 
 if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -175,6 +177,45 @@ async def scrape_segment(config: dict, segment_index: int, output_dir: str):
 
             pj_count = len(all_leads) - pj_count_before
             log.info(f"  [{name}] Pages Jaunes DONE: {pj_count} leads bruts")
+
+        # ── Annuaire.com ──
+        if "annuaire" in sources:
+            log.info(f"  [{name}] Phase: Annuaire.com...")
+            ann_count_before = len(all_leads)
+
+            for query in seg.get("pj_queries", []):  # reuse PJ queries
+                for zone_code in zones:
+                    location = f"paris-{zone_code}" if zone_code == "75" else zone_code
+                    try:
+                        leads = await annuaire.scrape_query(
+                            browser, query, name, exclude_kw,
+                            location=location,
+                        )
+                        all_leads.extend(leads)
+                    except Exception as e:
+                        log.error(f"  [Annuaire] Error: {e}")
+
+            ann_count = len(all_leads) - ann_count_before
+            log.info(f"  [{name}] Annuaire.com DONE: {ann_count} leads bruts")
+
+        # ── Societe.com ──
+        if "societe" in sources:
+            log.info(f"  [{name}] Phase: Societe.com...")
+            soc_count_before = len(all_leads)
+
+            for query in seg.get("pj_queries", [])[:3]:  # limit to top 3 queries (slow source)
+                for zone_code in zones:
+                    try:
+                        leads = await societe.scrape_query(
+                            browser, query, name, exclude_kw,
+                            postal_code=zone_code,
+                        )
+                        all_leads.extend(leads)
+                    except Exception as e:
+                        log.error(f"  [Societe] Error: {e}")
+
+            soc_count = len(all_leads) - soc_count_before
+            log.info(f"  [{name}] Societe.com DONE: {soc_count} leads bruts")
 
         await browser.close()
 

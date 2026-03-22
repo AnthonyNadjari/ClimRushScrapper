@@ -5,6 +5,8 @@ Usage:
     python -m scraper.merge --input-dir artifacts/ --output-dir results/
 """
 
+from __future__ import annotations
+
 import argparse
 import csv
 import datetime

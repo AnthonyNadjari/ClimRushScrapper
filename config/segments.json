@@ -7,7 +7,7 @@
     {
       "name": "Creches & Garderies privees",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes"],
+      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
       "gmaps_queries": [
         "creche privee",
         "micro creche",
@@ -32,7 +32,7 @@
     {
       "name": "Hotels 2-3 etoiles",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes"],
+      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
       "gmaps_queries": [
         "hotel 2 etoiles",
         "hotel 3 etoiles",
@@ -58,7 +58,7 @@
     {
       "name": "Salles de sport & Fitness",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes"],
+      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
       "gmaps_queries": [
         "salle de sport",
         "club fitness",
@@ -87,7 +87,7 @@
     {
       "name": "Restaurants independants",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes"],
+      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
       "gmaps_queries": [
         "restaurant",
         "bistrot",
@@ -118,7 +118,7 @@
     {
       "name": "Cabinets medicaux & Paramedical",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes"],
+      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
       "gmaps_queries": [
         "cabinet medical",
         "cabinet dentaire",
@@ -147,7 +147,7 @@
     {
       "name": "Salons de coiffure & Beaute",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes"],
+      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
       "gmaps_queries": [
         "salon coiffure",
         "coiffeur",
@@ -174,7 +174,7 @@
     {
       "name": "Agences immobilieres",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes"],
+      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
       "gmaps_queries": [
         "agence immobiliere",
         "agence immobiliere independante",
@@ -196,7 +196,7 @@
     {
       "name": "Boulangeries & Patisseries",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes"],
+      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
       "gmaps_queries": [
         "boulangerie artisanale",
         "patisserie",
@@ -218,7 +218,7 @@
     {
       "name": "Pharmacies & Parapharmacies",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes"],
+      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
       "gmaps_queries": [
         "pharmacie",
         "parapharmacie",
@@ -234,7 +234,7 @@
     {
       "name": "Commerces de proximite",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes"],
+      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
       "gmaps_queries": [
         "epicerie fine",
         "caviste",
@@ -258,7 +258,7 @@
     {
       "name": "Boutiques & Mode",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes"],
+      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
       "gmaps_queries": [
         "boutique vetements",
         "boutique mode",
@@ -281,7 +281,7 @@
     {
       "name": "Auto-ecoles & Garages",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes"],
+      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
       "gmaps_queries": [
         "auto ecole",
         "garage automobile",
@@ -302,7 +302,7 @@
     {
       "name": "Bars & Cafes",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes"],
+      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
       "gmaps_queries": [
         "bar",
         "bar a cocktails",
@@ -327,7 +327,7 @@
     {
       "name": "Opticiens & Audioprothesistes",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes"],
+      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
       "gmaps_queries": [
         "opticien",
         "opticien independant",
@@ -345,7 +345,7 @@
     {
       "name": "Pressing & Services",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes"],
+      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
       "gmaps_queries": [
         "pressing",
         "teinturerie",
@@ -368,7 +368,7 @@
     {
       "name": "Bureaux & Coworking",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes"],
+      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
       "gmaps_queries": [
         "espace coworking",
         "bureau a louer",

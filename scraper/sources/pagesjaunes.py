@@ -1,5 +1,7 @@
 """Pages Jaunes scraping: search, pagination, phone reveal."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import urllib.parse
