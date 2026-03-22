@@ -2,14 +2,11 @@ name: ClimRush Scraper
 
 on:
   workflow_dispatch:
-    inputs:
-      config:
-        description: 'JSON config (base64 encoded, optional)'
-        required: false
-        type: string
   push:
     paths:
       - 'config/segments.json'
+  schedule:
+    - cron: '0 6 * * 1'  # Every Monday at 6am UTC
 
 concurrency:
   group: scraper-run
@@ -23,25 +20,21 @@ jobs:
       count: ${{ steps.set-matrix.outputs.count }}
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - id: set-matrix
-        env:
-          INPUT_CONFIG: ${{ github.event.inputs.config || '' }}
-          CONFIG_PATH: config/segments.json
         run: python scripts/prepare_matrix.py
 
   scrape:
     needs: prepare
     if: needs.prepare.outputs.count != '0'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     strategy:
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
       fail-fast: false
+      max-parallel: 16
     steps:
       - uses: actions/checkout@v4
 
@@ -49,26 +42,26 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Cache Playwright browsers
+      - name: Cache Playwright
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ hashFiles('requirements.txt') }}
+          key: pw-chromium-${{ runner.os }}-v1
 
-      - name: Install dependencies
+      - name: Install deps
         run: |
           pip install playwright openpyxl
           playwright install chromium --with-deps
 
-      - name: Run scraper for segment ${{ matrix.name }}
+      - name: Scrape segment "${{ matrix.name }}"
         run: |
           python -m scraper.engine \
             --config config/segments.json \
             --segment-index ${{ matrix.index }} \
             --output-dir output/
 
-      - name: Upload segment results
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: segment-${{ matrix.index }}
           path: output/
@@ -87,19 +80,17 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install openpyxl
-        run: pip install openpyxl
+      - run: pip install openpyxl
 
-      - name: Download all segment artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           path: artifacts/
           pattern: segment-*
 
       - name: List artifacts
-        run: find artifacts/ -type f -name "*.csv" | head -50
+        run: find artifacts/ -name "*.csv" | sort
 
-      - name: Merge segments into Excel + JSON
+      - name: Merge into Excel + JSON
         run: python -m scraper.merge --input-dir artifacts/ --output-dir results/
 
       - name: Commit results
@@ -107,6 +98,6 @@ jobs:
           git config user.name "ClimRush Bot"
           git config user.email "bot@climrush.local"
           git add results/
-          git commit -m "Update results $(date -u +%Y-%m-%dT%H:%M:%SZ)" || echo "No changes to commit"
+          git commit -m "Update results $(date -u +%Y-%m-%dT%H:%M:%SZ) - $(cat results/latest.json | python3 -c 'import sys,json; print(json.load(sys.stdin)["total_leads"])' 2>/dev/null || echo '?') leads" || echo "No changes"
           git pull --rebase origin main || true
           git push

@@ -3,122 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ClimRush — Scraper B2B</title>
+  <title>ClimRush — Scraper B2B Paris</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <!-- ══ Header ══ -->
   <header class="app-header">
     <div class="logo">ClimRush <span>Scraper</span></div>
-    <nav class="nav-tabs" id="nav-tabs">
-      <button class="nav-tab" id="tab-dashboard" onclick="navigateTo('dashboard')">Dashboard</button>
-      <button class="nav-tab" id="tab-config" onclick="navigateTo('config')">Config</button>
-      <button class="nav-tab" id="tab-run" onclick="navigateTo('run')">Run</button>
-      <button class="nav-tab" id="tab-setup" onclick="navigateTo('setup')">Setup</button>
+    <nav class="nav-tabs">
+      <button class="nav-tab active" onclick="navigateTo('dashboard')">Dashboard</button>
+      <button class="nav-tab" onclick="navigateTo('config')">Config</button>
+      <button class="nav-tab" onclick="navigateTo('howto')">Comment ca marche</button>
     </nav>
-    <button class="btn-logout" onclick="logout()">Deconnexion</button>
   </header>
 
   <main class="main">
 
-    <!-- ══ Setup View ══ -->
-    <section class="view" id="view-setup">
-      <div class="setup-container">
-        <div class="setup-icon">🚀</div>
-        <h2>Connecter GitHub</h2>
-        <p>Entrez votre token et repo pour lancer le scraping via GitHub Actions.</p>
-
-        <form class="setup-form" onsubmit="setupSubmit(event)">
-          <div>
-            <label>GitHub Personal Access Token</label>
-            <input type="password" id="input-pat" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" required>
-            <p class="setup-hint">Fine-grained token avec scopes: Contents (read/write), Actions (write)</p>
-          </div>
-          <div>
-            <label>Repository (owner/repo)</label>
-            <input type="text" id="input-repo" placeholder="nadja/ClimRushScrapper" required>
-          </div>
-          <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:0.5rem;">
-            Connecter
-          </button>
-        </form>
-
-        <div class="setup-steps">
-          <h4>Comment creer un token ?</h4>
-          <ol>
-            <li>Allez sur <code>github.com/settings/tokens</code></li>
-            <li>Cliquez "Generate new token" → Fine-grained</li>
-            <li>Selectionnez votre repo</li>
-            <li>Permissions : <code>Contents: Read & Write</code>, <code>Actions: Write</code></li>
-            <li>Copiez le token et collez-le ici</li>
-          </ol>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══ Config View ══ -->
-    <section class="view" id="view-config">
-      <div class="config-header">
-        <h2>Configuration</h2>
-        <div style="display:flex; gap:8px;">
-          <button class="btn btn-secondary" onclick="loadConfig()">Recharger</button>
-          <button class="btn btn-success" onclick="saveConfig()">Sauvegarder & Lancer</button>
-        </div>
-      </div>
-
-      <div id="config-loading">Chargement de la config...</div>
-
-      <div class="global-settings">
-        <div>
-          <label>Concurrence max</label>
-          <input type="number" id="concurrency" value="5" min="1" max="10">
-        </div>
-      </div>
-
-      <div class="zones-section">
-        <h3>Zones geographiques</h3>
-        <div id="zones-list"></div>
-      </div>
-
-      <div class="segments-header">
-        <h3>Segments</h3>
-        <button class="btn btn-secondary" onclick="addSegment()">+ Ajouter un segment</button>
-      </div>
-
-      <div id="segments-list"></div>
-
-      <div style="text-align:center; margin-top:1rem;">
-        <button class="btn btn-success" onclick="saveConfig()" style="padding:14px 40px;">
-          Sauvegarder & Lancer le Scraping
-        </button>
-      </div>
-    </section>
-
-    <!-- ══ Run View ══ -->
-    <section class="view" id="view-run">
-      <div class="run-header">
-        <h2>Lancer le Scraping</h2>
-        <div class="run-actions">
-          <button class="btn btn-danger-outline" onclick="cancelCurrentRun()">Annuler</button>
-          <button class="btn btn-primary" id="btn-launch" onclick="triggerScrape()">
-            🚀 Lancer le Scraping
-          </button>
-        </div>
-      </div>
-
-      <div id="workflow-runs">
-        <p class="empty-state">Chargement...</p>
-      </div>
-    </section>
-
-    <!-- ══ Dashboard View ══ -->
-    <section class="view" id="view-dashboard">
-      <h2 style="margin-bottom:1rem;">Dashboard</h2>
+    <!-- ══ Dashboard ══ -->
+    <section class="view active" id="view-dashboard">
       <div id="dashboard-content">
         <div class="loading-spinner">Chargement des resultats...</div>
+      </div>
+    </section>
+
+    <!-- ══ Config (link to GitHub) ══ -->
+    <section class="view" id="view-config">
+      <div class="config-page">
+        <h2>Configuration des segments</h2>
+        <p class="subtitle">La config est un fichier JSON dans le repo. Modifiez-le, commitez, et le scraping se lance automatiquement.</p>
+
+        <div class="action-cards">
+          <a href="https://github.com/AnthonyNadjari/ClimRushScrapper/edit/main/config/segments.json" target="_blank" class="action-card">
+            <div class="action-icon">📝</div>
+            <h3>Modifier les segments</h3>
+            <p>Ajouter/supprimer des segments, queries, zones. Le commit lance le scraping automatiquement.</p>
+          </a>
+          <a href="https://github.com/AnthonyNadjari/ClimRushScrapper/actions/workflows/scrape.yml" target="_blank" class="action-card">
+            <div class="action-icon">🚀</div>
+            <h3>Lancer manuellement</h3>
+            <p>Allez sur Actions → "Run workflow" pour lancer le scraping sans modifier la config.</p>
+          </a>
+          <a href="https://github.com/AnthonyNadjari/ClimRushScrapper/actions" target="_blank" class="action-card">
+            <div class="action-icon">📊</div>
+            <h3>Voir les runs</h3>
+            <p>Suivez le progress en temps reel de chaque segment sur la page Actions.</p>
+          </a>
+        </div>
+
+        <h3 style="margin-top:2rem;">Config actuelle</h3>
+        <div id="config-preview" class="code-block">Chargement...</div>
+      </div>
+    </section>
+
+    <!-- ══ How it works ══ -->
+    <section class="view" id="view-howto">
+      <div class="howto-page">
+        <h2>Comment ca marche</h2>
+
+        <div class="step-cards">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <h3>Configurez</h3>
+            <p>Editez <code>config/segments.json</code> sur GitHub. Ajoutez des segments, des requetes de recherche, des zones geographiques.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <h3>Ca tourne tout seul</h3>
+            <p>Le commit declenche GitHub Actions. <strong>16 segments tournent en parallele</strong> sur des serveurs GitHub. Chaque segment scrape Google Maps + Pages Jaunes avec expansion par arrondissement.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <h3>Resultats</h3>
+            <p>Un Excel pro est genere automatiquement et commite dans le repo. Telechargez-le depuis le Dashboard.</p>
+          </div>
+        </div>
+
+        <h3>Architecture</h3>
+        <div class="arch-grid">
+          <div class="arch-card">
+            <h4>🔍 Sources</h4>
+            <ul>
+              <li><strong>Google Maps</strong> — scroll + clic sur chaque fiche, extrait: nom, adresse, tel, site, note, avis</li>
+              <li><strong>Pages Jaunes</strong> — recherche + pagination, clic pour reveler le tel</li>
+            </ul>
+          </div>
+          <div class="arch-card">
+            <h4>⚡ Performance</h4>
+            <ul>
+              <li><strong>16 runners</strong> en parallele (1 par segment)</li>
+              <li><strong>5 queries</strong> simultanees par runner</li>
+              <li><strong>Expansion par arrondissement</strong> : chaque requete × 20 arrondissements</li>
+              <li>~15-20 min au total au lieu de 2h+</li>
+            </ul>
+          </div>
+          <div class="arch-card">
+            <h4>🛡️ Robustesse</h4>
+            <ul>
+              <li>3 retries par requete avec delai exponentiel</li>
+              <li>Si un segment plante, les autres continuent</li>
+              <li>Deduplication par nom + code postal</li>
+              <li>Filtrage: contact requis (tel ou site), zone valide</li>
+            </ul>
+          </div>
+          <div class="arch-card">
+            <h4>📦 Output</h4>
+            <ul>
+              <li>Excel pro avec dashboard + 1 onglet par segment</li>
+              <li>CSV consolide</li>
+              <li>JSON pour ce dashboard web</li>
+              <li>Score qualite: tel(3) + site(2) + email(3) + adresse(1) + note(1)</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>16 Segments actuels</h3>
+        <div class="segment-chips" id="segment-list"></div>
       </div>
     </section>
 
@@ -126,11 +127,163 @@
 
   <div id="toast-container"></div>
 
-  <script src="js/github-api.js"></script>
-  <script src="js/config-editor.js"></script>
-  <script src="js/progress.js"></script>
-  <script src="js/dashboard.js"></script>
-  <script src="js/app.js"></script>
+  <script>
+    const OWNER = 'AnthonyNadjari';
+    const REPO = 'ClimRushScrapper';
+    const RAW_BASE = `https://raw.githubusercontent.com/${OWNER}/${REPO}/main`;
+
+    // ── Navigation ──
+    function navigateTo(view) {
+      document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+      document.getElementById(`view-${view}`).classList.add('active');
+      event.target.classList.add('active');
+
+      if (view === 'dashboard') loadDashboard();
+      if (view === 'config') loadConfigPreview();
+      if (view === 'howto') loadSegmentList();
+    }
+
+    // ── Dashboard ──
+    async function loadDashboard() {
+      const container = document.getElementById('dashboard-content');
+      try {
+        const res = await fetch(`${RAW_BASE}/results/latest.json?t=${Date.now()}`);
+        if (!res.ok) throw new Error('Pas encore de resultats');
+        const data = await res.json();
+        renderDashboard(data);
+      } catch (e) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <h3>Pas encore de resultats</h3>
+            <p>Lancez le scraping depuis l'onglet <strong>Config</strong> ou attendez le prochain run automatique.</p>
+            <a href="https://github.com/${OWNER}/${REPO}/actions/workflows/scrape.yml" target="_blank" class="btn btn-primary" style="margin-top:1rem;">
+              Lancer le scraping
+            </a>
+          </div>
+        `;
+      }
+    }
+
+    function renderDashboard(data) {
+      const container = document.getElementById('dashboard-content');
+      const date = data.run_date ? new Date(data.run_date).toLocaleString('fr-FR') : 'N/A';
+      const telPct = data.total_leads ? Math.round(data.total_phones / data.total_leads * 100) : 0;
+      const sitePct = data.total_leads ? Math.round(data.total_websites / data.total_leads * 100) : 0;
+
+      let segRows = (data.segments || []).map(seg => {
+        const pct = seg.count ? Math.round(seg.phones / seg.count * 100) : 0;
+        return `<tr>
+          <td class="seg-name">${seg.name}</td>
+          <td class="num">${seg.count.toLocaleString()}</td>
+          <td class="num">${seg.phones.toLocaleString()}</td>
+          <td class="num">${seg.websites.toLocaleString()}</td>
+          <td class="num">${pct}%</td>
+        </tr>`;
+      }).join('');
+
+      let topRows = (data.top_leads || []).slice(0, 25).map(l => `
+        <tr>
+          <td>${l.nom_entreprise || ''}</td>
+          <td class="mono">${l.telephone || '-'}</td>
+          <td class="url">${l.site_web ? `<a href="${l.site_web}" target="_blank">${l.site_web.slice(0, 40)}...</a>` : '-'}</td>
+          <td>${l.ville || ''} ${l.code_postal || ''}</td>
+          <td class="mono">${l.source || ''}</td>
+        </tr>
+      `).join('');
+
+      container.innerHTML = `
+        <div class="dash-header">
+          <span class="dash-date">Derniere mise a jour : ${date}</span>
+          <div class="dash-actions">
+            <a href="${RAW_BASE}/results/CLIMRUSH_Leads.xlsx" class="btn btn-primary" download>
+              📥 Telecharger Excel
+            </a>
+            <a href="${RAW_BASE}/results/CLIMRUSH_Leads.csv" class="btn btn-secondary" download>CSV</a>
+            <a href="https://github.com/${OWNER}/${REPO}/actions/workflows/scrape.yml" target="_blank" class="btn btn-secondary">
+              🚀 Relancer
+            </a>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-value">${data.total_leads.toLocaleString()}</div>
+            <div class="kpi-label">Leads uniques</div>
+          </div>
+          <div class="kpi-card kpi-phone">
+            <div class="kpi-value">${data.total_phones.toLocaleString()}</div>
+            <div class="kpi-label">Telephones (${telPct}%)</div>
+          </div>
+          <div class="kpi-card kpi-web">
+            <div class="kpi-value">${data.total_websites.toLocaleString()}</div>
+            <div class="kpi-label">Sites web (${sitePct}%)</div>
+          </div>
+          <div class="kpi-card kpi-seg">
+            <div class="kpi-value">${(data.segments || []).length}</div>
+            <div class="kpi-label">Segments</div>
+          </div>
+        </div>
+
+        <h3>Par segment</h3>
+        <table class="data-table">
+          <thead><tr><th>Segment</th><th>Leads</th><th>Tel</th><th>Sites</th><th>% Tel</th></tr></thead>
+          <tbody>${segRows}</tbody>
+        </table>
+
+        <h3>Top 25 leads</h3>
+        <table class="data-table leads-table">
+          <thead><tr><th>Entreprise</th><th>Telephone</th><th>Site web</th><th>Localisation</th><th>Source</th></tr></thead>
+          <tbody>${topRows}</tbody>
+        </table>
+      `;
+    }
+
+    // ── Config preview ──
+    async function loadConfigPreview() {
+      const el = document.getElementById('config-preview');
+      try {
+        const res = await fetch(`${RAW_BASE}/config/segments.json?t=${Date.now()}`);
+        const config = await res.json();
+        const enabled = (config.segments || []).filter(s => s.enabled !== false);
+        const totalQueries = enabled.reduce((sum, s) => sum + (s.gmaps_queries || []).length + (s.pj_queries || []).length, 0);
+        const expanded = config.expand_arrondissements
+          ? enabled.reduce((sum, s) => sum + (s.gmaps_queries || []).length * 20, 0)
+          : enabled.reduce((sum, s) => sum + (s.gmaps_queries || []).length, 0);
+
+        el.innerHTML = `
+          <div class="config-stats">
+            <span><strong>${enabled.length}</strong> segments actifs</span>
+            <span><strong>${totalQueries}</strong> requetes configurees</span>
+            <span><strong>${expanded.toLocaleString()}</strong> recherches Google Maps (avec expansion arrondissements)</span>
+            <span>Concurrence: <strong>${config.concurrency || 5}</strong> queries simultanees</span>
+            <span>Zones: <strong>${(config.zones || []).join(', ')}</strong></span>
+          </div>
+          <pre>${JSON.stringify(config, null, 2)}</pre>
+        `;
+      } catch {
+        el.innerHTML = '<p>Impossible de charger la config.</p>';
+      }
+    }
+
+    // ── Segment list ──
+    async function loadSegmentList() {
+      const el = document.getElementById('segment-list');
+      try {
+        const res = await fetch(`${RAW_BASE}/config/segments.json?t=${Date.now()}`);
+        const config = await res.json();
+        el.innerHTML = (config.segments || []).filter(s => s.enabled !== false).map(s =>
+          `<span class="seg-chip">${s.name} <em>(${(s.gmaps_queries||[]).length + (s.pj_queries||[]).length} queries)</em></span>`
+        ).join('');
+      } catch {
+        el.innerHTML = '<p>Erreur chargement</p>';
+      }
+    }
+
+    // ── Init ──
+    loadDashboard();
+  </script>
 
 </body>
 </html>
