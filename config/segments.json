@@ -1,389 +1,134 @@
 {
-  "concurrency": 5,
+  "concurrency": 6,
   "zones": ["75"],
-  "expand_arrondissements": true,
-  "pj_max_pages": 5,
+  "pj_max_pages": 3,
   "segments": [
     {
       "name": "Creches & Garderies privees",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
-      "gmaps_queries": [
-        "creche privee",
-        "micro creche",
-        "creche entreprise",
-        "garderie enfants",
-        "halte garderie",
-        "creche montessori",
-        "creche bilingue",
-        "creche parentale",
-        "jardin enfants",
-        "multi accueil enfants"
-      ],
-      "pj_queries": [
-        "creche privee",
-        "micro creche",
-        "garderie enfants",
-        "halte garderie",
-        "creche montessori"
-      ],
+      "sources": ["gmaps", "pagesjaunes", "annuaire"],
+      "gmaps_queries": ["creche privee", "micro creche", "garderie enfants", "creche montessori"],
+      "pj_queries": ["creche privee", "micro creche", "garderie enfants"],
       "exclude": ["mairie", "municipal", "ville de paris", "caf "]
     },
     {
       "name": "Hotels 2-3 etoiles",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
-      "gmaps_queries": [
-        "hotel 2 etoiles",
-        "hotel 3 etoiles",
-        "hotel charme",
-        "appart hotel",
-        "hotel independant",
-        "hotel familial",
-        "hotel boutique",
-        "petit hotel",
-        "hotel economique",
-        "residence hoteliere"
-      ],
-      "pj_queries": [
-        "hotel 2 etoiles",
-        "hotel 3 etoiles",
-        "hotel charme",
-        "appart hotel",
-        "hotel familial",
-        "residence hoteliere"
-      ],
+      "sources": ["gmaps", "pagesjaunes", "annuaire"],
+      "gmaps_queries": ["hotel 2 etoiles", "hotel 3 etoiles", "hotel charme", "appart hotel", "hotel independant"],
+      "pj_queries": ["hotel 2 etoiles", "hotel 3 etoiles", "appart hotel"],
       "exclude": ["palace", "5 etoiles", "luxury", "shangri", "ritz", "crillon", "george v", "bristol", "plaza", "four seasons", "mandarin", "peninsula", "booking.com", "trivago"]
     },
     {
       "name": "Salles de sport & Fitness",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
-      "gmaps_queries": [
-        "salle de sport",
-        "club fitness",
-        "salle musculation",
-        "crossfit box",
-        "salle arts martiaux",
-        "studio yoga pilates",
-        "club boxe",
-        "centre remise en forme",
-        "gym",
-        "salle escalade",
-        "club natation piscine",
-        "dojo karate judo"
-      ],
-      "pj_queries": [
-        "salle de sport",
-        "club fitness",
-        "salle musculation",
-        "crossfit",
-        "club boxe",
-        "yoga pilates",
-        "salle escalade"
-      ],
+      "sources": ["gmaps", "pagesjaunes", "annuaire"],
+      "gmaps_queries": ["salle de sport", "club fitness", "crossfit", "club boxe", "yoga pilates"],
+      "pj_queries": ["salle de sport", "club fitness", "crossfit"],
       "exclude": ["mairie", "municipal"]
     },
     {
       "name": "Restaurants independants",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
-      "gmaps_queries": [
-        "restaurant",
-        "bistrot",
-        "brasserie",
-        "restaurant italien",
-        "restaurant japonais",
-        "restaurant libanais",
-        "restaurant indien",
-        "pizzeria",
-        "restaurant vegetarien",
-        "restaurant terrasse",
-        "restaurant gastronomique",
-        "trattoria",
-        "restaurant thai",
-        "creperie"
-      ],
-      "pj_queries": [
-        "restaurant",
-        "bistrot",
-        "brasserie",
-        "pizzeria",
-        "restaurant gastronomique",
-        "trattoria",
-        "creperie"
-      ],
+      "sources": ["gmaps", "pagesjaunes", "annuaire"],
+      "gmaps_queries": ["restaurant", "bistrot", "brasserie", "pizzeria", "restaurant gastronomique"],
+      "pj_queries": ["restaurant", "bistrot", "brasserie"],
       "exclude": ["mcdonald", "burger king", "kfc", "subway", "domino", "quick", "flunch", "hippopotamus", "courtepaille", "buffalo grill", "del arte", "pizza hut", "five guys"]
     },
     {
       "name": "Cabinets medicaux & Paramedical",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
-      "gmaps_queries": [
-        "cabinet medical",
-        "cabinet dentaire",
-        "cabinet kinesitherapie",
-        "osteopathe",
-        "cabinet ophtalmologie",
-        "cabinet dermatologie",
-        "centre medical",
-        "cabinet podologue",
-        "cabinet orthophoniste",
-        "clinique veterinaire",
-        "cabinet sage femme",
-        "laboratoire analyses medicales"
-      ],
-      "pj_queries": [
-        "cabinet medical",
-        "cabinet dentaire",
-        "kinesitherapeute",
-        "osteopathe",
-        "centre medical",
-        "clinique veterinaire",
-        "laboratoire analyses"
-      ],
+      "sources": ["gmaps", "pagesjaunes", "annuaire"],
+      "gmaps_queries": ["cabinet medical", "cabinet dentaire", "kinesitherapeute", "osteopathe", "centre medical"],
+      "pj_queries": ["cabinet medical", "cabinet dentaire", "kinesitherapeute"],
       "exclude": ["hopital", "chu", "ap-hp", "assistance publique"]
     },
     {
       "name": "Salons de coiffure & Beaute",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
-      "gmaps_queries": [
-        "salon coiffure",
-        "coiffeur",
-        "barbershop",
-        "barber shop",
-        "salon beaute",
-        "institut beaute",
-        "salon esthetique",
-        "onglerie",
-        "spa bien etre",
-        "salon massage",
-        "epilation laser"
-      ],
-      "pj_queries": [
-        "salon coiffure",
-        "coiffeur",
-        "barbier",
-        "institut beaute",
-        "onglerie",
-        "spa bien etre"
-      ],
+      "sources": ["gmaps", "pagesjaunes", "annuaire"],
+      "gmaps_queries": ["salon coiffure", "barbershop", "institut beaute", "onglerie", "spa bien etre"],
+      "pj_queries": ["salon coiffure", "barbier", "institut beaute"],
       "exclude": ["ecole", "formation", "cap coiffure"]
     },
     {
       "name": "Agences immobilieres",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
-      "gmaps_queries": [
-        "agence immobiliere",
-        "agence immobiliere independante",
-        "gestion locative",
-        "syndic copropriete",
-        "chasseur immobilier",
-        "agence location",
-        "cabinet immobilier",
-        "conseil immobilier"
-      ],
-      "pj_queries": [
-        "agence immobiliere",
-        "gestion locative",
-        "syndic copropriete",
-        "chasseur immobilier"
-      ],
+      "sources": ["gmaps", "pagesjaunes", "annuaire"],
+      "gmaps_queries": ["agence immobiliere", "gestion locative", "syndic copropriete", "chasseur immobilier"],
+      "pj_queries": ["agence immobiliere", "gestion locative", "syndic copropriete"],
       "exclude": ["century 21", "foncia", "nexity", "orpi", "guy hoquet", "laforet", "era immobilier", "stephane plaza", "seloger"]
     },
     {
       "name": "Boulangeries & Patisseries",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
-      "gmaps_queries": [
-        "boulangerie artisanale",
-        "patisserie",
-        "boulangerie",
-        "boulangerie bio",
-        "salon de the",
-        "chocolatier",
-        "boulangerie patisserie"
-      ],
-      "pj_queries": [
-        "boulangerie artisanale",
-        "patisserie",
-        "boulangerie",
-        "chocolatier",
-        "salon de the"
-      ],
+      "sources": ["gmaps", "pagesjaunes", "annuaire"],
+      "gmaps_queries": ["boulangerie artisanale", "patisserie", "boulangerie", "chocolatier", "salon de the"],
+      "pj_queries": ["boulangerie", "patisserie", "chocolatier"],
       "exclude": ["paul", "brioche doree", "marie blachere", "pomme de pain"]
     },
     {
       "name": "Pharmacies & Parapharmacies",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
-      "gmaps_queries": [
-        "pharmacie",
-        "parapharmacie",
-        "pharmacie de garde",
-        "grande pharmacie"
-      ],
-      "pj_queries": [
-        "pharmacie",
-        "parapharmacie"
-      ],
+      "sources": ["gmaps", "pagesjaunes", "annuaire"],
+      "gmaps_queries": ["pharmacie", "parapharmacie", "grande pharmacie"],
+      "pj_queries": ["pharmacie", "parapharmacie"],
       "exclude": []
     },
     {
       "name": "Commerces de proximite",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
-      "gmaps_queries": [
-        "epicerie fine",
-        "caviste",
-        "cave a vin",
-        "fromagerie",
-        "primeur fruits legumes",
-        "traiteur",
-        "poissonnerie",
-        "boucherie charcuterie"
-      ],
-      "pj_queries": [
-        "epicerie fine",
-        "caviste",
-        "fromagerie",
-        "traiteur",
-        "boucherie charcuterie",
-        "poissonnerie"
-      ],
+      "sources": ["gmaps", "pagesjaunes", "annuaire"],
+      "gmaps_queries": ["epicerie fine", "caviste", "fromagerie", "traiteur", "boucherie charcuterie"],
+      "pj_queries": ["epicerie fine", "caviste", "fromagerie"],
       "exclude": ["carrefour", "franprix", "monoprix", "casino", "auchan", "lidl"]
     },
     {
       "name": "Boutiques & Mode",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
-      "gmaps_queries": [
-        "boutique vetements",
-        "boutique mode",
-        "friperie",
-        "boutique createur",
-        "magasin chaussures",
-        "bijouterie",
-        "maroquinerie",
-        "boutique accessoires mode"
-      ],
-      "pj_queries": [
-        "boutique vetements",
-        "friperie",
-        "bijouterie",
-        "maroquinerie",
-        "magasin chaussures"
-      ],
+      "sources": ["gmaps", "pagesjaunes", "annuaire"],
+      "gmaps_queries": ["boutique vetements", "friperie", "bijouterie", "maroquinerie", "magasin chaussures"],
+      "pj_queries": ["boutique vetements", "friperie", "bijouterie"],
       "exclude": ["zara", "h&m", "primark", "kiabi", "celio", "jules"]
     },
     {
       "name": "Auto-ecoles & Garages",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
-      "gmaps_queries": [
-        "auto ecole",
-        "garage automobile",
-        "mecanicien auto",
-        "carrosserie",
-        "centre controle technique",
-        "garage reparation",
-        "lavage auto"
-      ],
-      "pj_queries": [
-        "auto ecole",
-        "garage automobile",
-        "carrosserie",
-        "controle technique"
-      ],
+      "sources": ["gmaps", "pagesjaunes", "annuaire"],
+      "gmaps_queries": ["auto ecole", "garage automobile", "carrosserie", "controle technique"],
+      "pj_queries": ["auto ecole", "garage automobile", "carrosserie"],
       "exclude": ["norauto", "feu vert", "midas", "speedy", "carglass"]
     },
     {
       "name": "Bars & Cafes",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
-      "gmaps_queries": [
-        "bar",
-        "bar a cocktails",
-        "pub",
-        "bar a vin",
-        "cafe",
-        "coffee shop",
-        "rooftop bar",
-        "bar lounge",
-        "bar a bieres",
-        "bar dansant"
-      ],
-      "pj_queries": [
-        "bar",
-        "pub",
-        "bar a vin",
-        "cafe",
-        "bar a cocktails"
-      ],
+      "sources": ["gmaps", "pagesjaunes", "annuaire"],
+      "gmaps_queries": ["bar", "bar a cocktails", "pub", "bar a vin", "coffee shop"],
+      "pj_queries": ["bar", "pub", "bar a vin"],
       "exclude": ["starbucks", "columbus cafe", "mcdo"]
     },
     {
       "name": "Opticiens & Audioprothesistes",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
-      "gmaps_queries": [
-        "opticien",
-        "opticien independant",
-        "audioprothesiste",
-        "centre optique",
-        "lunettes"
-      ],
-      "pj_queries": [
-        "opticien",
-        "audioprothesiste",
-        "centre optique"
-      ],
+      "sources": ["gmaps", "pagesjaunes", "annuaire"],
+      "gmaps_queries": ["opticien", "audioprothesiste", "centre optique"],
+      "pj_queries": ["opticien", "audioprothesiste"],
       "exclude": ["afflelou", "krys", "optical center", "atol", "generale optique"]
     },
     {
       "name": "Pressing & Services",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
-      "gmaps_queries": [
-        "pressing",
-        "teinturerie",
-        "laverie automatique",
-        "retouche vetements",
-        "cordonnerie",
-        "serrurerie",
-        "imprimerie",
-        "reprographie"
-      ],
-      "pj_queries": [
-        "pressing",
-        "teinturerie",
-        "laverie",
-        "cordonnerie",
-        "serrurerie"
-      ],
+      "sources": ["gmaps", "pagesjaunes", "annuaire"],
+      "gmaps_queries": ["pressing", "teinturerie", "cordonnerie", "serrurerie", "imprimerie"],
+      "pj_queries": ["pressing", "cordonnerie", "serrurerie"],
       "exclude": []
     },
     {
       "name": "Bureaux & Coworking",
       "enabled": true,
-      "sources": ["gmaps", "pagesjaunes", "annuaire", "societe"],
-      "gmaps_queries": [
-        "espace coworking",
-        "bureau a louer",
-        "centre affaires",
-        "salle de reunion",
-        "domiciliation entreprise",
-        "pepiniere entreprise",
-        "incubateur startup"
-      ],
-      "pj_queries": [
-        "espace coworking",
-        "centre affaires",
-        "domiciliation entreprise",
-        "pepiniere entreprise"
-      ],
+      "sources": ["gmaps", "pagesjaunes", "annuaire"],
+      "gmaps_queries": ["espace coworking", "centre affaires", "domiciliation entreprise", "pepiniere entreprise"],
+      "pj_queries": ["espace coworking", "centre affaires", "domiciliation entreprise"],
       "exclude": ["wework", "regus", "spaces"]
     }
   ]

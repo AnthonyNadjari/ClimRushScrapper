@@ -25,7 +25,7 @@ jobs:
     needs: prepare
     if: needs.prepare.outputs.count != '0'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
     strategy:
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
       fail-fast: false

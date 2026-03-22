@@ -13,27 +13,12 @@ from ..browser import new_context, new_stealth_page, accept_cookies, USER_AGENTS
 
 log = logging.getLogger("climrush")
 
-MAX_RETRIES = 3
-RETRY_DELAY = 4
+MAX_RETRIES = 2
+RETRY_DELAY = 3
 
 
-async def _wait_detail(page, timeout_ms: int = 3000) -> bool:
-    try:
-        await page.wait_for_function(
-            """() => {
-                const h1 = document.querySelector('h1');
-                if (!h1) return false;
-                const t = h1.innerText.trim().toLowerCase();
-                return t && t !== 'resultats' && t !== 'resultats' && t.length > 1;
-            }""",
-            timeout=timeout_ms,
-        )
-        return True
-    except Exception:
-        return False
-
-
-async def _scroll_feed(page, max_scrolls: int = 35) -> int:
+async def _scroll_feed(page, max_scrolls: int = 15) -> int:
+    """Scroll the GMaps feed to load listings. Returns count of items found."""
     feed = await page.query_selector('div[role="feed"]')
     if not feed:
         return 0
@@ -44,7 +29,7 @@ async def _scroll_feed(page, max_scrolls: int = 35) -> int:
         count = len(items)
         if count == prev_count:
             no_change += 1
-            if no_change >= 3:
+            if no_change >= 2:
                 break
         else:
             no_change = 0
@@ -52,7 +37,7 @@ async def _scroll_feed(page, max_scrolls: int = 35) -> int:
         await page.evaluate(
             'const f = document.querySelector(\'div[role="feed"]\'); if(f) f.scrollTop = f.scrollHeight;'
         )
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.4)
         end = await page.query_selector("span.HlvSq")
         if end:
             break
@@ -60,22 +45,15 @@ async def _scroll_feed(page, max_scrolls: int = 35) -> int:
 
 
 async def _extract_from_feed(item) -> dict:
-    """Try to extract data from the feed listing without clicking into details.
-
-    The feed item's parent container often has rating, address text, and
-    sometimes category info visible in nearby sibling/child elements.
-    Returns a dict of what could be extracted.
-    """
+    """Extract data from the feed listing without clicking into details."""
     info = {"name": "", "address": "", "rating": "", "reviews": "", "phone": "", "website": ""}
 
     try:
         info["name"] = (await item.get_attribute("aria-label")) or ""
 
         # Navigate to the parent container that holds all info for this listing
-        # The link sits inside a container div that has address, rating, etc.
         parent_text = await item.evaluate_handle(
             """el => {
-                // Walk up to the listing container (usually 3-4 levels up)
                 let container = el.parentElement;
                 for (let i = 0; i < 5; i++) {
                     if (!container) break;
@@ -87,25 +65,23 @@ async def _extract_from_feed(item) -> dict:
         )
 
         if parent_text:
-            # Extract all text content from the container
             all_text = await parent_text.evaluate("el => el ? el.innerText : ''")
 
             if all_text:
-                # Extract rating (e.g. "4,5" or "4.5")
+                # Rating (e.g. "4,5" or "4.5")
                 rating_match = re.search(r"(\d[.,]\d)\s*\(", all_text)
                 if rating_match:
                     info["rating"] = rating_match.group(1).replace(",", ".")
 
-                # Extract review count
-                reviews_match = re.search(r"\((\d[\d\s]*)\)", all_text)
+                # Review count
+                reviews_match = re.search(r"\((\d[\d\s\u202f]*)\)", all_text)
                 if reviews_match:
                     info["reviews"] = reviews_match.group(1).replace(" ", "").replace("\u202f", "")
 
-                # Extract address-like text (lines with digits that look like street addresses)
+                # Address (lines with postal codes or street patterns)
                 lines = all_text.split("\n")
                 for line in lines:
                     line = line.strip()
-                    # Address lines typically contain a postal code or street number
                     if re.search(r"\b\d{5}\b", line) and len(line) > 10:
                         info["address"] = line
                         break
@@ -113,7 +89,12 @@ async def _extract_from_feed(item) -> dict:
                         info["address"] = line
                         break
 
-            # Look for phone in aria-labels of child elements
+                # Phone in text (French format)
+                phone_match = re.search(r"(?:0[1-9])[\s.]?(?:\d{2}[\s.]?){4}", all_text)
+                if phone_match:
+                    info["phone"] = phone_match.group(0)
+
+            # Look for phone via tel: links
             phone_els = await parent_text.evaluate(
                 """el => {
                     if (!el) return '';
@@ -125,7 +106,7 @@ async def _extract_from_feed(item) -> dict:
             if phone_els:
                 info["phone"] = phone_els
 
-            # Look for website link
+            # Website link
             website = await parent_text.evaluate(
                 """el => {
                     if (!el) return '';
@@ -150,7 +131,7 @@ async def _extract_detail(page, segment: str, fallback_name: str = "") -> Lead:
         h1 = await page.query_selector("h1")
         if h1:
             name = (await h1.inner_text()).strip()
-            if name.lower() in ["resultats", "resultats", "google maps", ""]:
+            if name.lower() in ["resultats", "résultats", "google maps", ""]:
                 lead.nom_entreprise = fallback_name
             else:
                 lead.nom_entreprise = name
@@ -158,8 +139,7 @@ async def _extract_detail(page, segment: str, fallback_name: str = "") -> Lead:
             lead.nom_entreprise = fallback_name
 
         if lead.nom_entreprise:
-            lead.nom_entreprise = re.sub(r"(?i)sponsoris[ee].*", "", lead.nom_entreprise).strip()
-            lead.nom_entreprise = re.sub(r"(?i)par booking\.com.*", "", lead.nom_entreprise).strip()
+            lead.nom_entreprise = re.sub(r"(?i)sponsoris[ée].*", "", lead.nom_entreprise).strip()
 
         addr_btn = await page.query_selector('button[data-item-id="address"]')
         if addr_btn:
@@ -168,16 +148,8 @@ async def _extract_detail(page, segment: str, fallback_name: str = "") -> Lead:
             cp = extract_cp(addr_text)
             if cp:
                 lead.code_postal = cp
-            for city_match in re.finditer(
-                r"(\d{5})\s+([A-Z\u00c0-\u00dc][a-z\u00e0-\u00fc\-]+(?:\s+[A-Z\u00c0-\u00dc][a-z\u00e0-\u00fc\-]+)*)",
-                addr_text,
-            ):
-                lead.ville = city_match.group(2)
-                break
-            if not lead.ville and "paris" in addr_text.lower():
+            if "paris" in addr_text.lower():
                 lead.ville = "Paris"
-            if lead.ville and not lead.code_postal:
-                lead.code_postal = "75000"
 
         phone_btn = await page.query_selector('button[data-item-id^="phone"]')
         if phone_btn:
@@ -211,8 +183,7 @@ async def _build_lead_from_feed(feed_info: dict, segment: str) -> Lead:
     lead.nom_entreprise = feed_info.get("name", "")
 
     if lead.nom_entreprise:
-        lead.nom_entreprise = re.sub(r"(?i)sponsoris[ee].*", "", lead.nom_entreprise).strip()
-        lead.nom_entreprise = re.sub(r"(?i)par booking\.com.*", "", lead.nom_entreprise).strip()
+        lead.nom_entreprise = re.sub(r"(?i)sponsoris[ée].*", "", lead.nom_entreprise).strip()
 
     addr = feed_info.get("address", "")
     if addr:
@@ -220,16 +191,8 @@ async def _build_lead_from_feed(feed_info: dict, segment: str) -> Lead:
         cp = extract_cp(addr)
         if cp:
             lead.code_postal = cp
-        for city_match in re.finditer(
-            r"(\d{5})\s+([A-Z\u00c0-\u00dc][a-z\u00e0-\u00fc\-]+(?:\s+[A-Z\u00c0-\u00dc][a-z\u00e0-\u00fc\-]+)*)",
-            addr,
-        ):
-            lead.ville = city_match.group(2)
-            break
-        if not lead.ville and "paris" in addr.lower():
+        if "paris" in addr.lower():
             lead.ville = "Paris"
-        if lead.ville and not lead.code_postal:
-            lead.code_postal = "75000"
 
     if feed_info.get("rating"):
         lead.note_google = feed_info["rating"]
@@ -246,7 +209,6 @@ async def _build_lead_from_feed(feed_info: dict, segment: str) -> Lead:
 async def _process_item(page, item, idx, total, segment, exclude_kw, seen_names: set) -> Optional[Lead]:
     """Process a single feed item. Extract from feed first, click only if needed."""
     try:
-        # --- Step 1: Extract what we can from the feed ---
         feed_info = await _extract_from_feed(item)
         name = feed_info.get("name", "")
 
@@ -255,29 +217,40 @@ async def _process_item(page, item, idx, total, segment, exclude_kw, seen_names:
         if any(kw.upper() in name.upper() for kw in exclude_kw):
             return None
 
-        # --- Step 2: Deduplicate by normalized name ---
+        # Deduplicate by normalized name
         norm = re.sub(r"[^A-Z0-9]", "", name.upper())
         if norm in seen_names:
             return None
         seen_names.add(norm)
 
-        # --- Step 3: Decide whether to click ---
+        # Try to build lead from feed data first
         has_phone = bool(feed_info.get("phone"))
         has_website = bool(feed_info.get("website"))
 
         if has_phone or has_website:
-            # We have enough contact info from feed, build lead without clicking
             lead = await _build_lead_from_feed(feed_info, segment)
             if lead.is_valid():
                 tel = lead.telephone or "no tel"
                 log.info(f"    [GMaps] {idx+1}/{total}: {lead.nom_entreprise[:40]} | {tel} (feed)")
                 return lead
 
-        # --- Step 4: Click into detail page for full extraction ---
+        # Click into detail page for full extraction
         try:
             await item.click()
-            await asyncio.sleep(0.3)
-            await _wait_detail(page, timeout_ms=3000)
+            await asyncio.sleep(0.2)
+            # Wait for detail panel
+            try:
+                await page.wait_for_function(
+                    """() => {
+                        const h1 = document.querySelector('h1');
+                        if (!h1) return false;
+                        const t = h1.innerText.trim().toLowerCase();
+                        return t && t !== 'resultats' && t !== 'résultats' && t.length > 1;
+                    }""",
+                    timeout=2500,
+                )
+            except Exception:
+                pass
             lead = await _extract_detail(page, segment, fallback_name=name)
             if lead.is_valid():
                 tel = lead.telephone or "no tel"
@@ -285,6 +258,12 @@ async def _process_item(page, item, idx, total, segment, exclude_kw, seen_names:
                 return lead
         except Exception:
             pass
+
+        # Last resort: accept lead with just a name from GMaps (we know it's in Paris)
+        lead = await _build_lead_from_feed(feed_info, segment)
+        if lead.nom_entreprise and (lead.telephone or lead.site_web):
+            log.info(f"    [GMaps] {idx+1}/{total}: {lead.nom_entreprise[:40]} | fallback")
+            return lead
 
         return None
 
@@ -312,11 +291,11 @@ async def scrape_query(
                 page = await new_stealth_page(ctx)
 
                 url = f"https://www.google.com/maps/search/{query.replace(' ', '+')}"
-                await page.goto(url, wait_until="domcontentloaded", timeout=30000)
-                await asyncio.sleep(1.5)
+                await page.goto(url, wait_until="domcontentloaded", timeout=20000)
+                await asyncio.sleep(1)
                 await accept_cookies(page)
 
-                total = await _scroll_feed(page, max_scrolls=35)
+                total = await _scroll_feed(page, max_scrolls=15)
                 log.info(f"  [GMaps:{segment[:18]}] Found {total} listings for '{query}'")
 
                 items = await page.query_selector_all('div[role="feed"] > div a[aria-label]')
@@ -327,7 +306,7 @@ async def scrape_query(
                     lead = await _process_item(page, item, i, len(items), segment, exclude_kw, seen_names)
                     if lead:
                         leads.append(lead)
-                    await asyncio.sleep(0.15)
+                    await asyncio.sleep(0.1)
 
                 log.info(f"  [GMaps:{segment[:18]}] '{query}' -> {len(leads)} leads")
                 return leads

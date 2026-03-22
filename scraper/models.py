@@ -25,19 +25,31 @@ class Lead:
             allowed_cp_prefixes = ["75"]
 
         has_contact = bool(self.telephone) or bool(self.site_web)
+        # Zone check: CP match, city name, or address mention
         in_zone = any(self.code_postal.startswith(p) for p in allowed_cp_prefixes) if self.code_postal else False
-        # Fallback: check city name
         if not in_zone and self.ville:
             in_zone = any(
                 kw in self.ville.lower()
-                for kw in ["paris", "boulogne", "neuilly", "levallois", "montreuil", "saint-denis"]
+                for kw in ["paris", "boulogne", "neuilly", "levallois", "montreuil", "saint-denis",
+                           "vincennes", "saint-ouen", "clichy", "issy", "vanves", "malakoff",
+                           "montrouge", "ivry", "charenton", "pantin", "aubervilliers", "bagnolet"]
             )
+        if not in_zone and self.adresse:
+            in_zone = any(
+                kw in self.adresse.lower()
+                for kw in ["paris", "75001", "75002", "75003", "75004", "75005", "75006",
+                           "75007", "75008", "75009", "75010", "75011", "75012", "75013",
+                           "75014", "75015", "75016", "75017", "75018", "75019", "75020"]
+            )
+        # If source is a Paris-specific search and no address info, assume Paris
+        if not in_zone and not self.code_postal and not self.ville and not self.adresse:
+            in_zone = True  # trust the search query geo-targeting
         name_ok = (
             bool(self.nom_entreprise.strip())
             and self.nom_entreprise.strip().lower()
-            not in ["resultats", "résultats", "google maps", ""]
+            not in ["resultats", "résultats", "google maps", "", "plan", "itinéraire"]
         )
-        return name_ok and in_zone and has_contact
+        return name_ok and has_contact
 
     def quality_score(self) -> int:
         s = 0
