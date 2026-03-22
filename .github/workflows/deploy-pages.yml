@@ -3,10 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
-    paths:
-      - 'frontend/**'
-      - 'results/**'
-      - 'config/**'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -30,6 +27,7 @@ jobs:
           mkdir -p _site/results _site/config
           cp -r results/* _site/results/ 2>/dev/null || true
           cp -r config/* _site/config/ 2>/dev/null || true
+          touch _site/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
