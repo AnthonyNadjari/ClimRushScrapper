@@ -2,11 +2,6 @@ name: ClimRush Scraper
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'config/segments.json'
-  schedule:
-    - cron: '0 6 * * 1'  # Every Monday at 6am UTC
 
 concurrency:
   group: scraper-run
