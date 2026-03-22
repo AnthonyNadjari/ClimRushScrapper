@@ -1,0 +1,211 @@
+{
+  "concurrency": 5,
+  "zones": ["75"],
+  "segments": [
+    {
+      "name": "Creches & Garderies privees",
+      "enabled": true,
+      "sources": ["gmaps", "pagesjaunes"],
+      "gmaps_queries": [
+        "creche privee paris",
+        "micro creche paris",
+        "creche entreprise paris",
+        "garderie enfants paris",
+        "halte garderie paris",
+        "creche montessori paris",
+        "creche bilingue paris",
+        "creche parentale paris",
+        "jardin enfants paris",
+        "multi accueil paris"
+      ],
+      "pj_queries": [
+        "creche privee",
+        "micro creche",
+        "garderie enfants",
+        "halte garderie",
+        "creche montessori",
+        "jardin enfants"
+      ],
+      "exclude": ["mairie", "municipal", "ville de paris", "caf "]
+    },
+    {
+      "name": "Hotels 2-3 etoiles",
+      "enabled": true,
+      "sources": ["gmaps", "pagesjaunes"],
+      "gmaps_queries": [
+        "hotel 2 etoiles paris",
+        "hotel 3 etoiles paris",
+        "hotel charme paris",
+        "appart hotel paris",
+        "hotel independant paris",
+        "hotel familial paris",
+        "hotel boutique paris",
+        "hotel quartier latin paris",
+        "hotel marais paris",
+        "hotel montmartre paris",
+        "hotel gare du nord paris",
+        "hotel bastille paris",
+        "hotel saint germain paris",
+        "petit hotel paris",
+        "hotel economique paris"
+      ],
+      "pj_queries": [
+        "hotel 2 etoiles",
+        "hotel 3 etoiles",
+        "hotel charme",
+        "appart hotel",
+        "hotel independant",
+        "hotel familial"
+      ],
+      "exclude": ["palace", "5 etoiles", "luxury", "shangri", "ritz", "crillon", "george v", "bristol", "plaza", "four seasons", "mandarin", "peninsula", "booking.com", "trivago"]
+    },
+    {
+      "name": "Salles de sport & Fitness",
+      "enabled": true,
+      "sources": ["gmaps", "pagesjaunes"],
+      "gmaps_queries": [
+        "salle de sport paris",
+        "club fitness paris",
+        "salle musculation paris",
+        "crossfit paris",
+        "salle arts martiaux paris",
+        "studio yoga pilates paris",
+        "club boxe paris",
+        "centre remise en forme paris",
+        "coach sportif salle paris",
+        "gym paris",
+        "salle escalade paris",
+        "club natation piscine paris"
+      ],
+      "pj_queries": [
+        "salle de sport",
+        "club fitness",
+        "salle musculation",
+        "crossfit",
+        "club boxe",
+        "yoga pilates",
+        "salle escalade"
+      ],
+      "exclude": ["mairie", "municipal"]
+    },
+    {
+      "name": "Restaurants independants",
+      "enabled": true,
+      "sources": ["gmaps", "pagesjaunes"],
+      "gmaps_queries": [
+        "restaurant independant paris",
+        "restaurant quartier paris",
+        "bistrot paris",
+        "brasserie paris",
+        "restaurant italien paris",
+        "restaurant japonais paris",
+        "restaurant libanais paris",
+        "restaurant indien paris",
+        "pizzeria paris",
+        "restaurant vegetarien paris",
+        "restaurant terrasse paris",
+        "restaurant gastronomique paris"
+      ],
+      "pj_queries": [
+        "restaurant",
+        "bistrot",
+        "brasserie",
+        "pizzeria",
+        "restaurant gastronomique"
+      ],
+      "exclude": ["mcdonald", "burger king", "kfc", "subway", "domino", "quick", "flunch", "hippopotamus", "courtepaille", "buffalo grill"]
+    },
+    {
+      "name": "Cabinets medicaux & Paramedical",
+      "enabled": true,
+      "sources": ["gmaps", "pagesjaunes"],
+      "gmaps_queries": [
+        "cabinet medical paris",
+        "cabinet dentaire paris",
+        "cabinet kinesitherapie paris",
+        "osteopathe paris",
+        "cabinet ophtalmologie paris",
+        "cabinet dermatologie paris",
+        "centre medical paris",
+        "cabinet podologue paris",
+        "cabinet orthophoniste paris",
+        "clinique veterinaire paris"
+      ],
+      "pj_queries": [
+        "cabinet medical",
+        "cabinet dentaire",
+        "kinesitherapeute",
+        "osteopathe",
+        "centre medical",
+        "clinique veterinaire"
+      ],
+      "exclude": ["hopital", "chu", "ap-hp", "assistance publique"]
+    },
+    {
+      "name": "Salons de coiffure & Beaute",
+      "enabled": true,
+      "sources": ["gmaps", "pagesjaunes"],
+      "gmaps_queries": [
+        "salon coiffure paris",
+        "coiffeur paris",
+        "barbershop paris",
+        "salon beaute paris",
+        "institut beaute paris",
+        "salon esthetique paris",
+        "onglerie paris",
+        "spa paris",
+        "salon massage paris"
+      ],
+      "pj_queries": [
+        "salon coiffure",
+        "coiffeur",
+        "barbier",
+        "institut beaute",
+        "onglerie",
+        "spa bien etre"
+      ],
+      "exclude": ["ecole", "formation", "cap coiffure"]
+    },
+    {
+      "name": "Agences immobilieres",
+      "enabled": true,
+      "sources": ["gmaps", "pagesjaunes"],
+      "gmaps_queries": [
+        "agence immobiliere paris",
+        "agence immobiliere independante paris",
+        "gestion locative paris",
+        "syndic copropriete paris",
+        "chasseur immobilier paris",
+        "agence location paris"
+      ],
+      "pj_queries": [
+        "agence immobiliere",
+        "gestion locative",
+        "syndic copropriete",
+        "chasseur immobilier"
+      ],
+      "exclude": ["century 21", "foncia", "nexity", "orpi", "guy hoquet", "laforet", "era immobilier", "stephane plaza"]
+    },
+    {
+      "name": "Boulangeries & Patisseries",
+      "enabled": true,
+      "sources": ["gmaps", "pagesjaunes"],
+      "gmaps_queries": [
+        "boulangerie artisanale paris",
+        "patisserie paris",
+        "boulangerie paris",
+        "boulangerie bio paris",
+        "salon de the paris",
+        "chocolatier paris"
+      ],
+      "pj_queries": [
+        "boulangerie artisanale",
+        "patisserie",
+        "boulangerie",
+        "chocolatier",
+        "salon de the"
+      ],
+      "exclude": ["paul", "brioche doree", "marie blachere"]
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClimRush — Scraper B2B</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ══ Header ══ -->
+  <header class="app-header">
+    <div class="logo">ClimRush <span>Scraper</span></div>
+    <nav class="nav-tabs" id="nav-tabs">
+      <button class="nav-tab" id="tab-dashboard" onclick="navigateTo('dashboard')">Dashboard</button>
+      <button class="nav-tab" id="tab-config" onclick="navigateTo('config')">Config</button>
+      <button class="nav-tab" id="tab-run" onclick="navigateTo('run')">Run</button>
+      <button class="nav-tab" id="tab-setup" onclick="navigateTo('setup')">Setup</button>
+    </nav>
+    <button class="btn-logout" onclick="logout()">Deconnexion</button>
+  </header>
+
+  <main class="main">
+
+    <!-- ══ Setup View ══ -->
+    <section class="view" id="view-setup">
+      <div class="setup-container">
+        <div class="setup-icon">🚀</div>
+        <h2>Connecter GitHub</h2>
+        <p>Entrez votre token et repo pour lancer le scraping via GitHub Actions.</p>
+
+        <form class="setup-form" onsubmit="setupSubmit(event)">
+          <div>
+            <label>GitHub Personal Access Token</label>
+            <input type="password" id="input-pat" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" required>
+            <p class="setup-hint">Fine-grained token avec scopes: Contents (read/write), Actions (write)</p>
+          </div>
+          <div>
+            <label>Repository (owner/repo)</label>
+            <input type="text" id="input-repo" placeholder="nadja/ClimRushScrapper" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:0.5rem;">
+            Connecter
+          </button>
+        </form>
+
+        <div class="setup-steps">
+          <h4>Comment creer un token ?</h4>
+          <ol>
+            <li>Allez sur <code>github.com/settings/tokens</code></li>
+            <li>Cliquez "Generate new token" → Fine-grained</li>
+            <li>Selectionnez votre repo</li>
+            <li>Permissions : <code>Contents: Read & Write</code>, <code>Actions: Write</code></li>
+            <li>Copiez le token et collez-le ici</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ Config View ══ -->
+    <section class="view" id="view-config">
+      <div class="config-header">
+        <h2>Configuration</h2>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-secondary" onclick="loadConfig()">Recharger</button>
+          <button class="btn btn-success" onclick="saveConfig()">Sauvegarder & Lancer</button>
+        </div>
+      </div>
+
+      <div id="config-loading">Chargement de la config...</div>
+
+      <div class="global-settings">
+        <div>
+          <label>Concurrence max</label>
+          <input type="number" id="concurrency" value="5" min="1" max="10">
+        </div>
+      </div>
+
+      <div class="zones-section">
+        <h3>Zones geographiques</h3>
+        <div id="zones-list"></div>
+      </div>
+
+      <div class="segments-header">
+        <h3>Segments</h3>
+        <button class="btn btn-secondary" onclick="addSegment()">+ Ajouter un segment</button>
+      </div>
+
+      <div id="segments-list"></div>
+
+      <div style="text-align:center; margin-top:1rem;">
+        <button class="btn btn-success" onclick="saveConfig()" style="padding:14px 40px;">
+          Sauvegarder & Lancer le Scraping
+        </button>
+      </div>
+    </section>
+
+    <!-- ══ Run View ══ -->
+    <section class="view" id="view-run">
+      <div class="run-header">
+        <h2>Lancer le Scraping</h2>
+        <div class="run-actions">
+          <button class="btn btn-danger-outline" onclick="cancelCurrentRun()">Annuler</button>
+          <button class="btn btn-primary" id="btn-launch" onclick="triggerScrape()">
+            🚀 Lancer le Scraping
+          </button>
+        </div>
+      </div>
+
+      <div id="workflow-runs">
+        <p class="empty-state">Chargement...</p>
+      </div>
+    </section>
+
+    <!-- ══ Dashboard View ══ -->
+    <section class="view" id="view-dashboard">
+      <h2 style="margin-bottom:1rem;">Dashboard</h2>
+      <div id="dashboard-content">
+        <div class="loading-spinner">Chargement des resultats...</div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="toast-container"></div>
+
+  <script src="js/github-api.js"></script>
+  <script src="js/config-editor.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
