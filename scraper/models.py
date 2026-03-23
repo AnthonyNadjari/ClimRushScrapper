@@ -32,14 +32,18 @@ class Lead:
                 kw in self.ville.lower()
                 for kw in ["paris", "boulogne", "neuilly", "levallois", "montreuil", "saint-denis",
                            "vincennes", "saint-ouen", "clichy", "issy", "vanves", "malakoff",
-                           "montrouge", "ivry", "charenton", "pantin", "aubervilliers", "bagnolet"]
+                           "montrouge", "ivry", "charenton", "pantin", "aubervilliers", "bagnolet",
+                           "nanterre", "colombes", "courbevoie", "asnieres", "rueil",
+                           "suresnes", "puteaux", "meudon", "clamart", "antony",
+                           "gennevilliers", "chatillon", "sceaux", "garches", "sevres",
+                           "chaville", "ville-d'avray", "saint-cloud", "la defense"]
             )
         if not in_zone and self.adresse:
-            in_zone = any(
-                kw in self.adresse.lower()
-                for kw in ["paris", "75001", "75002", "75003", "75004", "75005", "75006",
-                           "75007", "75008", "75009", "75010", "75011", "75012", "75013",
-                           "75014", "75015", "75016", "75017", "75018", "75019", "75020"]
+            addr_lower = self.adresse.lower()
+            in_zone = "paris" in addr_lower or "hauts-de-seine" in addr_lower or any(
+                f"92{str(i).zfill(3)}" in addr_lower for i in range(100)
+            ) or any(
+                f"75{str(i).zfill(3)}" in addr_lower for i in range(21)
             )
         # If source is a Paris-specific search and no address info, assume Paris
         if not in_zone and not self.code_postal and not self.ville and not self.adresse:

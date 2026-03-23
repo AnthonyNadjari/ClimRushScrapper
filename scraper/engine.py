@@ -51,24 +51,30 @@ def load_zones(config_dir: str) -> dict:
     return {"departments": [{"code": "75", "label": "Paris", "pj_slug": "Paris+(75)", "lat": 48.8566, "lng": 2.3522}]}
 
 
-async def _run_gmaps(browser, seg: dict, name: str, exclude_kw: list[str], concurrency: int) -> list[Lead]:
+async def _run_gmaps(browser, seg: dict, name: str, exclude_kw: list[str], concurrency: int, zone_data: dict, zones: list[str]) -> list[Lead]:
     """Run all Google Maps queries with semaphore-controlled parallelism."""
     queries = seg.get("gmaps_queries", [])
     if not queries:
         return []
 
-    log.info(f"  [{name}] GMaps: {len(queries)} queries (parallel, concurrency={concurrency})")
+    dept_map = {d["code"]: d for d in zone_data.get("departments", [])}
     semaphore = asyncio.Semaphore(concurrency)
-    leads = []
-
-    # Each query searches "X Paris" — no arrondissement expansion needed
     tasks = []
-    for query in queries:
-        full_query = f"{query} Paris"
-        tasks.append(gmaps.scrape_query(browser, full_query, name, exclude_kw, semaphore))
 
-    # Run all GMaps queries in parallel (semaphore limits concurrency)
+    # Each query × each zone (e.g. "ehpad Paris", "ehpad Hauts-de-Seine")
+    for query in queries:
+        for zone_code in zones:
+            zone = dept_map.get(zone_code, {"label": "Paris", "lat": 48.8566, "lng": 2.3522})
+            full_query = f"{query} {zone['label']}"
+            tasks.append(gmaps.scrape_query(
+                browser, full_query, name, exclude_kw, semaphore,
+                zone_lat=zone.get("lat", 48.8566), zone_lng=zone.get("lng", 2.3522),
+            ))
+
+    log.info(f"  [{name}] GMaps: {len(queries)} queries × {len(zones)} zones = {len(tasks)} searches (parallel)")
+
     results = await asyncio.gather(*tasks, return_exceptions=True)
+    leads = []
     for r in results:
         if isinstance(r, list):
             leads.extend(r)
@@ -176,7 +182,7 @@ async def scrape_segment(config: dict, segment_index: int, output_dir: str):
 
     log.info("=" * 60)
     log.info(f"  SEGMENT: {name}")
-    log.info(f"  Sources: {sources} | Concurrency: {concurrency}")
+    log.info(f"  Sources: {sources} | Concurrency: {concurrency} | Zones: {zones}")
     log.info(f"  GMaps queries: {len(seg.get('gmaps_queries', []))} | PJ queries: {len(seg.get('pj_queries', []))}")
     log.info("=" * 60)
 
@@ -188,7 +194,7 @@ async def scrape_segment(config: dict, segment_index: int, output_dir: str):
         source_names = []
 
         if "gmaps" in sources:
-            source_tasks.append(_run_gmaps(browser, seg, name, exclude_kw, concurrency))
+            source_tasks.append(_run_gmaps(browser, seg, name, exclude_kw, concurrency, zone_data, zones))
             source_names.append("GMaps")
 
         if "pagesjaunes" in sources:
