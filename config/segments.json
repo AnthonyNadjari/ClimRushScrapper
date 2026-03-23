@@ -21,7 +21,7 @@
     },
     {
       "name": "Creches & Garderies privees",
-      "enabled": false,
+      "enabled": true,
       "sources": ["gmaps", "pagesjaunes", "annuaire"],
       "gmaps_queries": ["creche privee", "micro creche", "garderie enfants", "creche montessori"],
       "pj_queries": ["creche privee", "micro creche", "garderie enfants"],
@@ -29,7 +29,7 @@
     },
     {
       "name": "Hotels 2-3 etoiles",
-      "enabled": false,
+      "enabled": true,
       "sources": ["gmaps", "pagesjaunes", "annuaire"],
       "gmaps_queries": ["hotel 2 etoiles", "hotel 3 etoiles", "hotel charme", "appart hotel", "hotel independant"],
       "pj_queries": ["hotel 2 etoiles", "hotel 3 etoiles", "appart hotel"],
@@ -37,7 +37,7 @@
     },
     {
       "name": "Salles de sport & Fitness",
-      "enabled": false,
+      "enabled": true,
       "sources": ["gmaps", "pagesjaunes", "annuaire"],
       "gmaps_queries": ["salle de sport", "club fitness", "crossfit", "club boxe", "yoga pilates"],
       "pj_queries": ["salle de sport", "club fitness", "crossfit"],
@@ -45,7 +45,7 @@
     },
     {
       "name": "Restaurants independants",
-      "enabled": false,
+      "enabled": true,
       "sources": ["gmaps", "pagesjaunes", "annuaire"],
       "gmaps_queries": ["restaurant", "bistrot", "brasserie", "pizzeria", "restaurant gastronomique"],
       "pj_queries": ["restaurant", "bistrot", "brasserie"],
@@ -53,7 +53,7 @@
     },
     {
       "name": "Cabinets medicaux & Paramedical",
-      "enabled": false,
+      "enabled": true,
       "sources": ["gmaps", "pagesjaunes", "annuaire"],
       "gmaps_queries": ["cabinet medical", "cabinet dentaire", "kinesitherapeute", "osteopathe", "centre medical"],
       "pj_queries": ["cabinet medical", "cabinet dentaire", "kinesitherapeute"],
@@ -61,7 +61,7 @@
     },
     {
       "name": "Salons de coiffure & Beaute",
-      "enabled": false,
+      "enabled": true,
       "sources": ["gmaps", "pagesjaunes", "annuaire"],
       "gmaps_queries": ["salon coiffure", "barbershop", "institut beaute", "onglerie", "spa bien etre"],
       "pj_queries": ["salon coiffure", "barbier", "institut beaute"],
@@ -69,7 +69,7 @@
     },
     {
       "name": "Agences immobilieres",
-      "enabled": false,
+      "enabled": true,
       "sources": ["gmaps", "pagesjaunes", "annuaire"],
       "gmaps_queries": ["agence immobiliere", "gestion locative", "syndic copropriete", "chasseur immobilier"],
       "pj_queries": ["agence immobiliere", "gestion locative", "syndic copropriete"],
@@ -77,7 +77,7 @@
     },
     {
       "name": "Boulangeries & Patisseries",
-      "enabled": false,
+      "enabled": true,
       "sources": ["gmaps", "pagesjaunes", "annuaire"],
       "gmaps_queries": ["boulangerie artisanale", "patisserie", "boulangerie", "chocolatier", "salon de the"],
       "pj_queries": ["boulangerie", "patisserie", "chocolatier"],
@@ -85,7 +85,7 @@
     },
     {
       "name": "Pharmacies & Parapharmacies",
-      "enabled": false,
+      "enabled": true,
       "sources": ["gmaps", "pagesjaunes", "annuaire"],
       "gmaps_queries": ["pharmacie", "parapharmacie", "grande pharmacie"],
       "pj_queries": ["pharmacie", "parapharmacie"],
@@ -93,7 +93,7 @@
     },
     {
       "name": "Commerces de proximite",
-      "enabled": false,
+      "enabled": true,
       "sources": ["gmaps", "pagesjaunes", "annuaire"],
       "gmaps_queries": ["epicerie fine", "caviste", "fromagerie", "traiteur", "boucherie charcuterie"],
       "pj_queries": ["epicerie fine", "caviste", "fromagerie"],
@@ -101,7 +101,7 @@
     },
     {
       "name": "Boutiques & Mode",
-      "enabled": false,
+      "enabled": true,
       "sources": ["gmaps", "pagesjaunes", "annuaire"],
       "gmaps_queries": ["boutique vetements", "friperie", "bijouterie", "maroquinerie", "magasin chaussures"],
       "pj_queries": ["boutique vetements", "friperie", "bijouterie"],
@@ -109,7 +109,7 @@
     },
     {
       "name": "Auto-ecoles & Garages",
-      "enabled": false,
+      "enabled": true,
       "sources": ["gmaps", "pagesjaunes", "annuaire"],
       "gmaps_queries": ["auto ecole", "garage automobile", "carrosserie", "controle technique"],
       "pj_queries": ["auto ecole", "garage automobile", "carrosserie"],
@@ -117,7 +117,7 @@
     },
     {
       "name": "Bars & Cafes",
-      "enabled": false,
+      "enabled": true,
       "sources": ["gmaps", "pagesjaunes", "annuaire"],
       "gmaps_queries": ["bar", "bar a cocktails", "pub", "bar a vin", "coffee shop"],
       "pj_queries": ["bar", "pub", "bar a vin"],
@@ -125,7 +125,7 @@
     },
     {
       "name": "Opticiens & Audioprothesistes",
-      "enabled": false,
+      "enabled": true,
       "sources": ["gmaps", "pagesjaunes", "annuaire"],
       "gmaps_queries": ["opticien", "audioprothesiste", "centre optique"],
       "pj_queries": ["opticien", "audioprothesiste"],
@@ -133,7 +133,7 @@
     },
     {
       "name": "Pressing & Services",
-      "enabled": false,
+      "enabled": true,
       "sources": ["gmaps", "pagesjaunes", "annuaire"],
       "gmaps_queries": ["pressing", "teinturerie", "cordonnerie", "serrurerie", "imprimerie"],
       "pj_queries": ["pressing", "cordonnerie", "serrurerie"],
@@ -141,7 +141,7 @@
     },
     {
       "name": "Bureaux & Coworking",
-      "enabled": false,
+      "enabled": true,
       "sources": ["gmaps", "pagesjaunes", "annuaire"],
       "gmaps_queries": ["espace coworking", "centre affaires", "domiciliation entreprise", "pepiniere entreprise"],
       "pj_queries": ["espace coworking", "centre affaires", "domiciliation entreprise"],
